@@ -23,7 +23,6 @@ public class FoursquareVenue {
     public void setCity(String city) {
         if (city != null) {
             this.city = city.replaceAll("\\(", "").replaceAll("\\)", "");
-            ;
         }
     }
 
