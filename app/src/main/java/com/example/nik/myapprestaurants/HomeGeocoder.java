@@ -26,7 +26,7 @@ public class HomeGeocoder extends AppCompatActivity {
 
         addresses = null;
         strLocation = getIntent().getStringExtra("mStrLocation");
-        geocoder = new Geocoder(getApplicationContext());
+        geocoder = new Geocoder(getBaseContext());
 
         try {
             addresses = geocoder.getFromLocationName(strLocation, 10);
@@ -50,6 +50,7 @@ public class HomeGeocoder extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "GeoCoder error", Toast.LENGTH_SHORT).show();
             Log.d(LOG, "----------------------onCreate GeoCoder error");
+            finish();
         }
 
     }
