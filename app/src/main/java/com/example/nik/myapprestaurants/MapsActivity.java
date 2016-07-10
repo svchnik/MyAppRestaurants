@@ -12,9 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -27,8 +31,8 @@ public class MapsActivity extends FragmentActivity {
     public static final int REQUEST_CODE_GEODECOD = 789;
     final String LOG = "LOG";
     String mEditText = "Dalvik, Iceland";
-    double mlatitude;
-    double mlongitude;
+    double mlatitude = 0.0;
+    double mlongitude = 0.0;
     Geocoder geocoder;
     SupportMapFragment mapFragment;
     GoogleMap map;
@@ -43,6 +47,8 @@ public class MapsActivity extends FragmentActivity {
     Intent intent2;
     Address address;
     List<Address> locations = null;
+    LatLng latLng;
+    LatLng latLng2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,8 @@ public class MapsActivity extends FragmentActivity {
         btnLocation = (Button) findViewById(R.id.btnLocation);
         btnEditText = (Button) findViewById(R.id.btnEditText);
 
+        latLng = new LatLng(mlatitude, mlongitude);
+
         geocoder = new Geocoder(this, Locale.getDefault());
 
         mLocationRefresh(mEditText);
@@ -63,7 +71,8 @@ public class MapsActivity extends FragmentActivity {
 
     private void init() {
         marker = map.addMarker(new MarkerOptions()
-                .position(new LatLng(mlatitude, mlongitude))
+                //.position(new LatLng(mlatitude, mlongitude))
+                .position(latLng)
                 .title("Ресторан")
                 .snippet("Additional text"));
         Log.d(LOG, "----------------------addMarker1");
@@ -72,10 +81,11 @@ public class MapsActivity extends FragmentActivity {
 
     private void init2() {
         marker2 = map.addMarker(new MarkerOptions()
-                .position(new LatLng(mlatitude, mlongitude))
+                //.position(new LatLng(mlatitude, mlongitude))
+                .position(latLng2)
                 .title("Ресторан2")
                 .snippet("Additional text2")
-                .icon(BitmapDescriptorFactory.defaultMarker())
+                //.icon(BitmapDescriptorFactory.defaultMarker())
         );
         Log.d(LOG, "----------------------addMarker2");
     }
@@ -155,6 +165,11 @@ public class MapsActivity extends FragmentActivity {
                 mlatitude = data.getDoubleExtra("Lat", 0);
                 mlongitude = data.getDoubleExtra("Lon", 0);
                 mLatLongRefresh();
+
+                latLng = new LatLng(mlatitude, mlongitude);
+                marker.setPosition(latLng);
+                myMoveCamera(latLng);
+                //mLocationRefresh(mEditText);
             }else{
                 Toast.makeText(this, "NO responce1", Toast.LENGTH_SHORT).show();
             }
@@ -166,11 +181,28 @@ public class MapsActivity extends FragmentActivity {
                 mlatitude = data.getDoubleExtra("Lat", 0);
                 mlongitude = data.getDoubleExtra("Lon", 0);
                 mLatLongRefresh();
-                //init2();
+
+                latLng = new LatLng(mlatitude, mlongitude);
+
+                if(marker == null){
+                    init();
+                }
+                marker.setPosition(latLng);
+                myMoveCamera(latLng);
             }else{
                 Toast.makeText(this, "NO responce2", Toast.LENGTH_SHORT).show();
             }
         }
 
+    }
+
+
+    public void myMoveCamera(LatLng latLngN) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLngN)
+                .zoom(12)
+                .build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+        map.animateCamera(cameraUpdate);
     }
 }
